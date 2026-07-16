@@ -211,6 +211,94 @@ def cmd_sandbox_run(args, paths: Paths) -> int:
     return 0 if result.ok else 1
 
 
+def _load_meta(args) -> dict:
+    if args.meta_file:
+        return json.loads(Path(args.meta_file).read_text(encoding="utf-8"))
+    if args.meta:
+        return json.loads(args.meta)
+    return {}
+
+
+def cmd_autoacquire_check(args, paths: Paths) -> int:
+    from .autoacquire import Candidate, evaluate, load_trust
+    meta = _load_meta(args)
+    meta.setdefault("id", args.id or meta.get("id", ""))
+    trust = load_trust(paths)
+    decision = evaluate(Candidate.from_dict(meta), trust)
+    _print(decision.to_dict())
+    return 0 if decision.eligible else 1
+
+
+def cmd_autoacquire_promote(args, paths: Paths) -> int:
+    pipe = Pipeline(paths)
+    meta = _load_meta(args)
+    summary = args.review_summary or ""
+    if args.review_file:
+        rv = json.loads(Path(args.review_file).read_text(encoding="utf-8"))
+        verdict = str(rv.get("verdict", "")).lower()
+        summary = rv.get("summary", summary)
+    else:
+        verdict = (args.review_verdict or "").lower()
+    result = pipe.auto_promote(args.id, meta, verdict, summary)
+    pipe.close()
+    _print(result)
+    return 0 if result.get("auto_installed") else 1
+
+
+def _learn_promote(args, paths: Paths, store, audit) -> int:
+    """Dogrulanmis, tekrar eden bir dersi OTOMATIK skill'e donusturur.
+
+    Kapilar: ders uses >= min ve net pozitif olmali; uretilen skill statik tarama
+    ve eval'den gecmeli; dusuk riskli oldugu icin politika otomatik kurar. Kurulunca
+    Claude Code onu aciklamasina gore otomatik kullanir.
+    """
+    from .skillgen import generate_skill_dir
+    lesson = store.get(args.id)
+    if lesson is None:
+        print(f"ders yok: {args.id}", file=sys.stderr)
+        return 1
+    if not args.force:
+        if lesson["uses"] < args.min_uses:
+            _print({"promoted": False,
+                    "reason": f"ders yeterince tekrar etmedi (uses={lesson['uses']} "
+                              f"< {args.min_uses}); --force ile zorlanabilir"})
+            return 1
+        if lesson["losses"] > lesson["wins"]:
+            _print({"promoted": False,
+                    "reason": f"ders net negatif (wins={lesson['wins']} "
+                              f"losses={lesson['losses']})"})
+            return 1
+
+    skill_dir, skill_id = generate_skill_dir(lesson, paths.staging_skills)
+    pipe = Pipeline(paths)
+    try:
+        st = pipe.stage(skill_dir, skill_id, risk_level="low",
+                        domains=[lesson["domain"]] if lesson["domain"] else [],
+                        source=f"learned-lesson:{lesson['id']}")
+        if not st.get("staged"):
+            _print({"promoted": False, "gate": "scan", "detail": st})
+            return 1
+        ev = pipe.evaluate(skill_id)
+        if not ev.get("passed"):
+            _print({"promoted": False, "gate": "eval", "detail": ev})
+            return 1
+        pr = pipe.promote(skill_id)
+        installed = pr.get("installed", False)
+        if installed:
+            store.mark_status(args.id, "promoted")
+        audit.append("learning", "lesson_promoted_to_skill",
+                     {"lesson_id": args.id, "skill": skill_id,
+                      "installed": installed, "decision": pr.get("decision")})
+        _print({"promoted": installed, "skill": skill_id,
+                "decision": pr.get("decision"),
+                "auto_used": "kurulunca Claude Code aciklamasina gore otomatik cagirir"
+                             if installed else None,
+                "detail": pr})
+        return 0 if installed else 1
+    finally:
+        pipe.close()
+
+
 def cmd_learn(args, paths: Paths) -> int:
     store = LessonStore(paths.lessons_db)
     audit = AuditLog(paths.audit_log)
@@ -245,6 +333,8 @@ def cmd_learn(args, paths: Paths) -> int:
             n = store.prune(args.days)
             audit.append("learning", "pruned", {"count": n})
             _print({"pruned": n})
+        elif args.learn_cmd == "promote":
+            return _learn_promote(args, paths, store, audit)
         elif args.learn_cmd == "stats":
             _print(store.stats())
         else:
@@ -318,6 +408,22 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--cwd", default=None)
     p.add_argument("cmd", nargs=argparse.REMAINDER)
 
+    # --- otomatik edinme (guvenilir kaynak) ---
+    ac = sub.add_parser("autoacquire-check",
+                        help="aday otomatik kuruluma uygun mu (guven katmani)")
+    ac.add_argument("id")
+    ac.add_argument("--meta", default="", help="JSON metadata string")
+    ac.add_argument("--meta-file", default="", help="JSON metadata dosyasi")
+    ap2 = sub.add_parser("autoacquire-promote",
+                         help="uc kapiyi (guven+tarama+Sonnet) gecirip otomatik kur")
+    ap2.add_argument("id")
+    ap2.add_argument("--meta", default="", help="JSON metadata string")
+    ap2.add_argument("--meta-file", default="", help="JSON metadata dosyasi")
+    ap2.add_argument("--review-verdict", default="", choices=["", "approve", "reject"],
+                     help="Sonnet inceleme sonucu")
+    ap2.add_argument("--review-file", default="", help="Sonnet inceleme JSON dosyasi")
+    ap2.add_argument("--review-summary", default="")
+
     # --- ogrenme (token-verimli) ---
     lp = sub.add_parser("learn", help="kendi kendine ogrenme: ders defteri")
     lsub = lp.add_subparsers(dest="learn_cmd", required=True)
@@ -341,6 +447,12 @@ def main(argv: list[str] | None = None) -> int:
     lpr = lsub.add_parser("prune", help="kullanilmayan dersleri buda")
     lpr.add_argument("--days", type=int, default=120)
     lsub.add_parser("stats", help="ders istatistikleri")
+    lpm = lsub.add_parser("promote",
+                          help="dogrulanmis dersi OTOMATIK skill'e donustur (tara+eval+kur)")
+    lpm.add_argument("id", type=int)
+    lpm.add_argument("--min-uses", type=int, default=3)
+    lpm.add_argument("--force", action="store_true",
+                     help="uses/net-pozitif kapilarini atla (dikkatli)")
 
     args = parser.parse_args(argv)
     paths = Paths(Path(args.root).resolve()) if args.root else Paths()
@@ -352,6 +464,8 @@ def main(argv: list[str] | None = None) -> int:
         "list": cmd_list, "search": cmd_search, "stale": cmd_stale,
         "verify": cmd_verify, "report": cmd_report,
         "sandbox-run": cmd_sandbox_run, "learn": cmd_learn,
+        "autoacquire-check": cmd_autoacquire_check,
+        "autoacquire-promote": cmd_autoacquire_promote,
     }
     return handlers[args.command](args, paths)
 

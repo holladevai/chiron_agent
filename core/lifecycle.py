@@ -23,6 +23,7 @@ import time
 from pathlib import Path
 
 from .audit import AuditLog
+from . import autoacquire
 from .confidence import assess
 from .evals import run_eval
 from .paths import Paths
@@ -145,6 +146,91 @@ class Pipeline:
                           {"capability": capability_id, "decision": decision.effect,
                            "reason": decision.reason})
         return out
+
+    # ------------------------------------------------------------------
+    def auto_promote(self, capability_id: str, meta: dict,
+                     review_verdict: str, review_summary: str = "") -> dict:
+        """Guvenilir kaynak icin INSAN ONAYI BEKLEMEDEN otomatik kurulum.
+
+        UC kapinin HEPSI gecmeden kurmaz:
+          1) Guven katmani (autoacquire.evaluate): resmi org veya yildiz esigi +
+             lisans/tazelik/risk-tavani/izin kontrolu
+          2) Deterministik tarayici: taze re-scan, kritik yok + skor >= esik
+          3) Sonnet icerik incelemesi: review_verdict == 'approve'
+
+        Herhangi biri gecmezse otomatik kurmaz; insan onay paketi olusturur.
+        Yuksek/kritik risk ve tehlikeli izinler guven katmaninda zaten elenir.
+        """
+        row = self.registry.latest(capability_id)
+        if row is None:
+            raise KeyError(f"registry'de yok: {capability_id}")
+
+        trust = autoacquire.load_trust(self.paths)
+        cand = autoacquire.Candidate.from_dict({**meta, "id": capability_id,
+                                                "risk_level": row["risk_level"]})
+        decision = autoacquire.evaluate(cand, trust)
+
+        out = {"capability": capability_id, "tier": decision.tier,
+               "trust_reasons": decision.reasons, "auto_installed": False}
+
+        # --- Kapi 1: guven katmani ---
+        if not decision.eligible:
+            out["gate_failed"] = "trust"
+            out["reason"] = "guven katmani gecilemedi -> insan onayi"
+            self._to_human(row, decision.reasons)
+            out["approval_package"] = str(self.paths.approvals_pending / f"{capability_id}.md")
+            self.audit.append("autoacquire", "auto_denied_trust",
+                              {"capability": capability_id, "tier": decision.tier,
+                               "reasons": decision.reasons})
+            return out
+
+        # --- Kapi 2: taze deterministik tarama ---
+        skill_dir = Path(row["path"]) if row["path"] else self.paths.staging_skills / capability_id
+        scan = scan_path(skill_dir)
+        if scan.has_critical or scan.score < trust["min_scan_score"]:
+            out["gate_failed"] = "scanner"
+            out["scan"] = {"score": scan.score, "verdict": scan.verdict}
+            out["reason"] = f"tarama kapisi: verdict={scan.verdict} skor={scan.score}"
+            self.registry.set_status(capability_id, "revoked")
+            self.audit.append("autoacquire", "auto_denied_scan",
+                              {"capability": capability_id, "score": scan.score,
+                               "verdict": scan.verdict})
+            return out
+
+        # --- eval gecmis olmali ---
+        if row["status"] != "sandbox-validated" or (row["validation_score"] or 0) < 0.9:
+            out["gate_failed"] = "eval"
+            out["reason"] = "sandbox eval gecilmemis (once python -m core eval)"
+            self.audit.append("autoacquire", "auto_blocked_eval",
+                              {"capability": capability_id, "status": row["status"]})
+            return out
+
+        # --- Kapi 3: Sonnet icerik incelemesi ---
+        if (review_verdict or "").lower() != "approve":
+            out["gate_failed"] = "sonnet_review"
+            out["reason"] = f"Sonnet incelemesi onaylamadi: verdict={review_verdict}"
+            self._to_human(row, [f"Sonnet review: {review_verdict} — {review_summary}"])
+            out["approval_package"] = str(self.paths.approvals_pending / f"{capability_id}.md")
+            self.audit.append("autoacquire", "auto_denied_review",
+                              {"capability": capability_id, "verdict": review_verdict,
+                               "summary": review_summary[:200]})
+            return out
+
+        # --- Uc kapi da gecti: otomatik kur ---
+        self._install(row)
+        out["auto_installed"] = True
+        out["reason"] = "uc kapi gecti (guven + tarama + Sonnet) -> otomatik kuruldu"
+        self.audit.append("autoacquire", "auto_installed", {
+            "capability": capability_id, "tier": decision.tier,
+            "source_url": meta.get("source_url", ""), "org": cand.org,
+            "stars": cand.stars, "license": cand.license,
+            "risk_level": row["risk_level"], "scan_score": scan.score,
+            "sonnet_verdict": review_verdict, "sonnet_summary": review_summary[:200],
+        })
+        return out
+
+    def _to_human(self, row: dict, extra_reasons: list[str]) -> None:
+        self._write_approval_package(row, extra_reasons)
 
     # ------------------------------------------------------------------
     def approve(self, capability_id: str, approver: str, *, confirmed: bool) -> dict:

@@ -184,6 +184,11 @@ class LessonStore:
             "AND wins >= losses ORDER BY uses DESC", (min_uses,)).fetchall()
         return [dict(r) for r in rows]
 
+    def get(self, lesson_id: int) -> dict | None:
+        row = self._conn.execute(
+            "SELECT * FROM lessons WHERE id=?", (lesson_id,)).fetchone()
+        return dict(row) if row else None
+
     def mark_status(self, lesson_id: int, status: str) -> None:
         if status not in ("candidate", "skill_candidate", "promoted", "pruned"):
             raise ValueError(status)

@@ -54,6 +54,18 @@ Politikayi yalnizca INSAN elle degistirir ve `python -m core seal-policy` ile mu
 
 ## Yetenek edinme akisi (internetten bulunan hicbir sey dogrudan kurulmaz)
 
+Iki serit var. Once kaynagin guvenilir olup olmadigina bak:
+
+**A) Otomatik serit** — kaynak resmi org VEYA GitHub'da yuksek yildizli+bakimli repo
+ise (bkz. [[auto-capability-acquisition]]). Insan onayi BEKLENMEZ ama uc kapi zorunlu:
+```
+capability-manager (aday+metadata) -> autoacquire-check (guven katmani)
+  -> stage + statik tarama -> eval -> auto-security-reviewer (SONNET okur)
+  -> autoacquire-promote (uc kapi gecerse OTOMATIK kurar; degilse insana duser)
+```
+
+**B) Standart serit** — bilinmeyen kaynak, yuksek risk veya tehlikeli izin
+(bkz. [[secure-capability-acquisition]]):
 ```
 kesif (capability-manager) -> stage + statik tarama -> security-gatekeeper
   -> eval (sandbox) -> promote (policy karari)
@@ -61,6 +73,20 @@ kesif (capability-manager) -> stage + statik tarama -> security-gatekeeper
      - require_approval       -> approvals/pending/<id>.md -> INSAN approve eder
      - deny                   -> reddedilir
 ```
+
+Otomatik serit yalnizca risk in {low, medium} ve tehlikeli izin YOK ise gecerli;
+aksi halde immutable-core geregi insana gider (oauth/broker/high-risk).
+
+## Dersten OTOMATIK skill uretimi (kendi kendine ogrenme -> kalici yetenek)
+
+Tekrar eden ve dogrulanmis bir ders (uses>=3, net pozitif) otomatik skill olur:
+```
+python -m core learn promotion-candidates      # olgunlasan dersler
+python -m core learn promote <ders-id>          # skill uret + tara + eval + kur
+```
+Uretilen skill dusuk riskliyse otomatik kurulur ve Claude Code onu ACIKLAMASINA
+gore ihtiyac olunca otomatik cagirir. Web'den edinilip dogrulanan bilgiler de
+once `learn add` ile kaydedilir, tekrar edip kanitlanınca ayni yolla skill olur.
 
 ## CLI komutlari
 
