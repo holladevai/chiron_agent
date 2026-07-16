@@ -8,6 +8,22 @@ saglayan calisir bir sistemdir.
 
 Tam tasarim gerekcesi: `otonom_uzmanlasan_ai_agent_skills_mcp_mimarisi.md`.
 
+## Aktivasyon (otomatik + komutla)
+
+Sistem her Claude Code oturumunda **otomatik devreye girer**: `SessionStart` hook'u
+`python -m core session-start` calistirir, auto-init yapar ve calisma protokolunu
+context'e enjekte eder. Ayrica komutla kontrol edilir (`UserPromptSubmit` hook'u):
+
+- **"ajan devreye gir"** (veya "ajan aktif", "/ajan") -> protokolu acar.
+- **"is bitti"** (veya "ajan dur/kapat") -> protokolu bu oturumda kapatir.
+
+Durum kalicidir (`.ajan_state.json`); varsayilan **aktif**. Elle: `python -m core ajan on|off|status`.
+
+> Ilk kurulum: hook'lar `settings.local.json`'da hazirdir (Claude Code yeniden
+> baslatilinca yuklenir). Kalici/portable hale getirmek ve guard hook 2>&1
+> false-positive yamasi icin **kullanici bir kez** `python scripts/setup_ajan.py`
+> calistirir (guard hook ve settings.json anayasal korumali oldugundan bunu insan yapar).
+
 ## Temel calisma kurali (HER gorevde)
 
 1. **Once yetkinlik acigini olc.** Gorev yuksek riskli (finans/trading/guvenlik),

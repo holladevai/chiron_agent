@@ -68,6 +68,19 @@ def cmd_init(args, paths: Paths) -> int:
     return 0
 
 
+def cmd_ajan(args, paths: Paths) -> int:
+    from . import activate
+    if args.state == "on":
+        activate.set_active(paths, True)
+        _print({"ajan": "active"})
+    elif args.state == "off":
+        activate.set_active(paths, False)
+        _print({"ajan": "inactive"})
+    else:
+        _print({"ajan": "active" if activate.is_active(paths) else "inactive"})
+    return 0
+
+
 def cmd_seal(args, paths: Paths) -> int:
     digest = PolicyEngine(paths).seal()
     AuditLog(paths.audit_log).append("human", "policy_sealed", {"sha256": digest})
@@ -209,6 +222,63 @@ def cmd_sandbox_run(args, paths: Paths) -> int:
                            "network": args.network, "timed_out": result.timed_out})
     _print(result.to_dict())
     return 0 if result.ok else 1
+
+
+def _ensure_ready(paths: Paths) -> None:
+    """Idempotent otomatik kurulum: muhur + dizinler + seed kayitlari."""
+    paths.ensure()
+    policy = PolicyEngine(paths)
+    if not paths.immutable_seal.exists():
+        policy.seal()
+    pipe = Pipeline(paths)
+    try:
+        for d in sorted(paths.active_skills.iterdir()) if paths.active_skills.exists() else []:
+            if not d.is_dir() or not (d / "SKILL.md").exists():
+                continue
+            if pipe.registry.latest(d.name) is None:
+                scan = scan_path(d)
+                pipe.registry.add(d.name, "1.0.0", status="project-approved",
+                                  risk_level="low", source="seed", path=str(d),
+                                  content_hash=dir_content_hash(d), scan_score=scan.score,
+                                  validation_score=1.0, notes="seed")
+                pipe.registry.set_validation(d.name, 1.0)
+    finally:
+        pipe.close()
+
+
+def cmd_session_start(args, paths: Paths) -> int:
+    from . import activate
+    try:
+        _ensure_ready(paths)
+        if activate.is_active(paths):
+            ok, _ = PolicyEngine(paths).verify_integrity()
+            banner = "" if ok else "[UYARI] politika butunlugu dogrulanamadi (fail-closed).\n"
+            print(banner + activate.PROTOCOL)
+        # pasifse cikti yok (sessiz)
+    except Exception:
+        pass
+    return 0
+
+
+def cmd_on_prompt(args, paths: Paths) -> int:
+    from . import activate
+    try:
+        raw = sys.stdin.buffer.read()
+        payload = json.loads(raw.decode("utf-8-sig", errors="replace") or "{}")
+        prompt = payload.get("prompt") or payload.get("user_prompt") or ""
+        action = activate.classify(prompt)
+        if action == "engage":
+            activate.set_active(paths, True)
+            AuditLog(paths.audit_log).append("human", "ajan_engaged", {})
+            print(activate.PROTOCOL)
+        elif action == "disengage":
+            activate.set_active(paths, False)
+            AuditLog(paths.audit_log).append("human", "ajan_disengaged", {})
+            print(activate.DISENGAGED_NOTE)
+        # tetikleyici yoksa cikti yok (0 token)
+    except Exception:
+        pass
+    return 0
 
 
 def _load_meta(args) -> dict:
@@ -353,6 +423,10 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("init", help="platformu baslat (dizinler, muhur, seed kayitlari)")
     sub.add_parser("seal-policy", help="[INSAN] immutable-core degisikligini muhurle")
+    sub.add_parser("session-start", help="[HOOK] oturum baslangici: auto-init + protokol")
+    sub.add_parser("on-prompt", help="[HOOK] prompt'ta 'ajan devreye gir' / 'is bitti' yakala")
+    p = sub.add_parser("ajan", help="ajan durumunu ac/kapa/goster")
+    p.add_argument("state", choices=["on", "off", "status"])
 
     p = sub.add_parser("gap", help="yetkinlik acigi ve guven skoru raporu")
     p.add_argument("--domain", required=True)
@@ -466,6 +540,8 @@ def main(argv: list[str] | None = None) -> int:
         "sandbox-run": cmd_sandbox_run, "learn": cmd_learn,
         "autoacquire-check": cmd_autoacquire_check,
         "autoacquire-promote": cmd_autoacquire_promote,
+        "session-start": cmd_session_start, "on-prompt": cmd_on_prompt,
+        "ajan": cmd_ajan,
     }
     return handlers[args.command](args, paths)
 

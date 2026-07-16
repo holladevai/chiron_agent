@@ -1,4 +1,6 @@
 # Runtime durumu (uretilen; surumlenmez)
+.ajan_state.json
+.claude/settings.local.json
 registry/*.db
 registry/revoked/*
 audit/audit.jsonl
