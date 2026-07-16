@@ -76,12 +76,21 @@ def is_protected_file(file_path: str, protected: list[str]) -> str | None:
     return None
 
 
+def _scrub_redirects(command: str) -> str:
+    """stderr/stdout birlestirme ve null yonlendirmeleri mutasyon DEGILDIR."""
+    s = re.sub(r"\d*>\s*&\s*\d+", " ", command)          # 2>&1, 1>&2
+    s = re.sub(r"\d*>\s*\$null", " ", s, flags=re.I)       # 2>$null
+    s = re.sub(r"\d*>\s*/dev/null", " ", s)               # 2>/dev/null
+    s = re.sub(r"\d*>\s*nul\b", " ", s, flags=re.I)        # 2>nul (cmd)
+    return s
+
+
 def command_touches_protected(command: str, protected: list[str]) -> str | None:
     c = norm(command)
     for entry in protected:
         e = norm(entry).rstrip("/")
         basename = e.rsplit("/", 1)[-1]
-        if basename in c and MUTATION_HINTS.search(command):
+        if basename in c and MUTATION_HINTS.search(_scrub_redirects(command)):
             return entry
     return None
 
