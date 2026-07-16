@@ -13,6 +13,7 @@ policies/immutable-core.sha256
 # Python
 __pycache__/
 *.pyc
+*.egg-info/
 .pytest_cache/
 .venv/
 venv/

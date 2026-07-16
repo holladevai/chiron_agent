@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-label="AJAN — Autonomous, Self-Specializing AI Agent Platform">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/>
+      <stop offset="0.55" stop-color="#111a33"/>
+      <stop offset="1" stop-color="#0d2438"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5eead4"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#34d399"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="280" rx="16" fill="url(#bg)"/>
+
+  <!-- subtle circuit lines -->
+  <g stroke="#2a3b5e" stroke-width="1.5" fill="none" opacity="0.55">
+    <path d="M40 220 H 240 L 280 180 H 420"/>
+    <path d="M60 60 H 180 L 220 100 H 330"/>
+    <path d="M1160 70 H 1000 L 960 110 H 860"/>
+    <path d="M1140 230 H 1040 L 1000 190 H 900"/>
+  </g>
+  <g fill="#3b82f6" opacity="0.7">
+    <circle cx="420" cy="180" r="4"/>
+    <circle cx="330" cy="100" r="4"/>
+    <circle cx="860" cy="110" r="4"/>
+    <circle cx="900" cy="190" r="4"/>
+    <circle cx="40" cy="220" r="4"/>
+    <circle cx="60" cy="60" r="4"/>
+    <circle cx="1160" cy="70" r="4"/>
+    <circle cx="1140" cy="230" r="4"/>
+  </g>
+
+  <!-- shield icon -->
+  <g transform="translate(120,68)">
+    <path d="M52 0 L104 22 V74 C104 112 80 134 52 148 C24 134 0 112 0 74 V22 Z"
+          fill="none" stroke="url(#shield)" stroke-width="6"/>
+    <!-- gear/spark inside -->
+    <circle cx="52" cy="66" r="20" fill="none" stroke="#5eead4" stroke-width="5"/>
+    <g stroke="#5eead4" stroke-width="5" stroke-linecap="round">
+      <line x1="52" y1="34" x2="52" y2="44"/>
+      <line x1="52" y1="88" x2="52" y2="98"/>
+      <line x1="20" y1="66" x2="30" y2="66"/>
+      <line x1="74" y1="66" x2="84" y2="66"/>
+      <line x1="30" y1="44" x2="37" y2="51"/>
+      <line x1="67" y1="81" x2="74" y2="88"/>
+      <line x1="74" y1="44" x2="67" y2="51"/>
+      <line x1="37" y1="81" x2="30" y2="88"/>
+    </g>
+    <circle cx="52" cy="66" r="7" fill="#818cf8"/>
+  </g>
+
+  <!-- title -->
+  <text x="300" y="118" font-family="Segoe UI, Helvetica, Arial, sans-serif"
+        font-size="64" font-weight="800" fill="#f1f5f9" letter-spacing="6">AJAN</text>
+  <rect x="304" y="134" width="150" height="5" rx="2.5" fill="url(#accent)"/>
+
+  <!-- subtitle -->
+  <text x="300" y="172" font-family="Segoe UI, Helvetica, Arial, sans-serif"
+        font-size="24" font-weight="500" fill="#94a3b8">Autonomous, Self-Specializing AI Agent Platform</text>
+
+  <!-- pills -->
+  <g font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="600">
+    <rect x="300" y="196" width="130" height="32" rx="16" fill="#123a33" stroke="#34d399" stroke-width="1.2"/>
+    <text x="365" y="217" text-anchor="middle" fill="#6ee7b7">sandboxed</text>
+
+    <rect x="442" y="196" width="132" height="32" rx="16" fill="#1e2a4d" stroke="#818cf8" stroke-width="1.2"/>
+    <text x="508" y="217" text-anchor="middle" fill="#a5b4fc">policy-gated</text>
+
+    <rect x="586" y="196" width="138" height="32" rx="16" fill="#0f3047" stroke="#38bdf8" stroke-width="1.2"/>
+    <text x="655" y="217" text-anchor="middle" fill="#7dd3fc">self-learning</text>
+
+    <rect x="736" y="196" width="168" height="32" rx="16" fill="#3a2a14" stroke="#f59e0b" stroke-width="1.2"/>
+    <text x="820" y="217" text-anchor="middle" fill="#fcd34d">audit-chained</text>
+  </g>
+</svg>

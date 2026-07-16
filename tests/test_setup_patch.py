@@ -7,6 +7,8 @@ import importlib.util
 import re
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -32,6 +34,8 @@ def _load_guard(tmp_path, patched: bool):
 
 
 def test_unpatched_false_positive(tmp_path):
+    if "_scrub_redirects" in (ROOT / "core" / "guard_hook.py").read_text(encoding="utf-8"):
+        pytest.skip("guard_hook.py zaten yamali (setup_ajan.py uygulanmis)")
     g = _load_guard(tmp_path, patched=False)
     prot = ["policies/immutable-core.sha256"]
     # 2>&1 iceren SALT-OKUMA komut -> yamasiz hatali sekilde bloklanir
