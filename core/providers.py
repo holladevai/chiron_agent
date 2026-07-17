@@ -46,9 +46,11 @@ PROVIDERS: tuple[ProviderSpec, ...] = (
     # kodlama modeli. Model listesi hizli degisir -> CHIRON_NVIDIA_MODEL ile override.
     ProviderSpec("nvidia", "openai", "NVIDIA_API_KEY",
                  "qwen/qwen3-coder-480b-a35b-instruct", "https://integrate.api.nvidia.com/v1"),
-    # Moonshot / Kimi — ajanik kodlama icin guclu (Kimi K2 ailesi)
+    # Moonshot / Kimi — 2026-07 dogrulandi: Kimi K2 ailesi (2025) EMEKLI (25 May 2026).
+    # Guncel: kimi-k3 (amiral), kimi-k2.7-code (kodlama uzmani) — varsayilan kodlama.
+    # UCRETSIZ Kimi icin: OpenRouter + model "moonshotai/kimi-k2.6:free".
     ProviderSpec("moonshot", "openai", "MOONSHOT_API_KEY",
-                 "kimi-k2-0711-preview", "https://api.moonshot.ai/v1"),
+                 "kimi-k2.7-code", "https://api.moonshot.ai/v1"),
     ProviderSpec("mistral", "openai", "MISTRAL_API_KEY", "mistral-large-latest", "https://api.mistral.ai/v1"),
     # DeepSeek — deepseek-chat (V3) genel+kodlama; deepseek-reasoner muhakeme icin
     ProviderSpec("deepseek", "openai", "DEEPSEEK_API_KEY", "deepseek-chat", "https://api.deepseek.com/v1"),

@@ -62,21 +62,43 @@ atlanır, diğerleri etkilenmez (paralel + fallback).
 
 Yeni sağlayıcı eklemek = `core/providers.py` içindeki `PROVIDERS` tablosuna bir satır.
 
-### Önerilen kodlama modelleri (2026)
+### Önerilen kodlama modelleri — **17 Temmuz 2026 itibarıyla doğrulandı**
 
-Model kimlikleri hızlı değişir; aşağıdakiler **başlangıç örneği** — sağlayıcının güncel
-model listesinden doğrulayıp `CHIRON_<PROV>_MODEL` ile ayarla:
+Model kimlikleri hızlı değişir; aşağıdakiler o tarihte doğrulanmış gerçek kimliklerdir.
+`CHIRON_<PROV>_MODEL` ile override edilebilir.
 
-| Amaç | Model (örnek) | Nerede |
+| Amaç | Model kimliği | Nerede |
 |---|---|---|
-| En iyi açık kodlama (büyük) | `qwen/qwen3-coder-480b-a35b-instruct` | NVIDIA NIM / Fireworks / Together |
-| Ajanik kodlama | Kimi K2 (`kimi-k2-…`) | Moonshot / NVIDIA NIM |
-| Güçlü MoE kod + muhakeme | DeepSeek V3 (`deepseek-chat`), R-serisi (`deepseek-reasoner`) | DeepSeek / NVIDIA NIM |
-| Hafif/yerel kodlama | Qwen3-Coder küçük varyant, Devstral | Ollama (yerel) |
-| Hızlı/ucuz | Llama-3.x, Mixtral | Groq / Together |
+| En iyi açık kodlama (büyük, SOTA) | `qwen/qwen3-coder-480b-a35b-instruct` | NVIDIA NIM / Fireworks / Together |
+| Verimli kodlama (tek iş istasyonu, ~%96 kalite) | Qwen3-Coder-Next (80B-A3B) | NVIDIA NIM |
+| Ajanik kodlama uzmanı | **`kimi-k2.7-code`** (veya `-highspeed`) | Moonshot |
+| Otonom ajan (SWE-Bench sınıfı, yüksek throughput) | Nemotron-3-Super-120B | NVIDIA NIM |
+| Hızlı/ucuz kod | DeepSeek V4 Flash | NVIDIA NIM / DeepSeek |
+| Güçlü muhakeme + kod | DeepSeek (`deepseek-chat` V-serisi / `deepseek-reasoner`) | DeepSeek / NVIDIA NIM |
+| Hafif/yerel | Qwen3-Coder küçük varyant, Devstral 2 | Ollama (yerel) |
 
-> Kaynaklar: [NVIDIA NIM (OpenAI-uyumlu)](https://ai-sdk.dev/providers/openai-compatible-providers/nim) ·
-> [NVIDIA NIM model listesi](https://docs.api.nvidia.com/nim/reference/llm-apis) ·
+> ⚠️ **Kimi K2 (2025) serisi 25 Mayıs 2026'da emekliye ayrıldı** — eski `kimi-k2-*-preview`
+> kimlikleri artık çalışmaz. Güncel: `kimi-k3` (amiral), `kimi-k2.7-code` (kodlama),
+> `kimi-k2.6` (multimodal). Chiron varsayılanı `kimi-k2.7-code`.
+
+### 🆓 Kimi'yi ÜCRETSİZ kullanma (17 Tem 2026)
+
+Kimi K2.6, **OpenRouter üzerinden ücretsiz** sunuluyor (262k bağlam). Tek anahtar yeter:
+
+```bash
+setx OPENROUTER_API_KEY "sk-or-..."           # OpenRouter'dan ücretsiz anahtar
+setx CHIRON_OPENROUTER_MODEL "moonshotai/kimi-k2.6:free"
+python -m core providers                        # openrouter görünür, ücretsiz Kimi hazır
+python -m core consult "zor soru" --context-file kod.py
+```
+
+Ayrıca NVIDIA NIM yeni kullanıcılara **1000 ücretsiz kredi** verir (üst kodlama
+modellerini denemek için).
+
+> Kaynaklar (17 Tem 2026 doğrulama): [Kimi model listesi](https://platform.kimi.ai/docs/models) ·
+> [Kimi K2.6 free — OpenRouter](https://openrouter.ai/moonshotai/kimi-k2.6:free) ·
+> [Kimi K3 duyurusu (VentureBeat)](https://venturebeat.com/technology/chinas-moonshot-ai-releases-kimi-k3-the-largest-open-source-model-ever-rivaling-top-u-s-systems) ·
+> [NVIDIA NIM (OpenAI-uyumlu)](https://ai-sdk.dev/providers/openai-compatible-providers/nim) ·
 > [2026 açık kodlama modelleri](https://kilo.ai/open-source-models)
 
 ## Fikirler nasıl kullanılır (sentez)
