@@ -14,6 +14,8 @@ import json
 import sys
 from pathlib import Path
 
+from . import council as council_mod
+from . import providers as providers_mod
 from . import quality_gate
 from . import sandbox as sbx
 from .audit import AuditLog
@@ -205,6 +207,45 @@ def cmd_gate(args, paths: Paths) -> int:
     result = quality_gate.run_gate(paths.root, min_coverage=min_cov, skip=skip)
     _print(result.to_dict())
     return 0 if result.done else 1
+
+
+def cmd_providers(args, paths: Paths) -> int:
+    """Env'de anahtari mevcut LLM saglayicilarini listeler (maskeli)."""
+    provs = providers_mod.available_providers()
+    _print({
+        "count": len(provs),
+        "providers": [{"name": p.name, "kind": p.kind, "model": p.model,
+                       "key": p.key_masked} for p in provs],
+        "mode": ("solo" if len(provs) <= 1 else "verify" if len(provs) == 2 else "council"),
+    })
+    return 0
+
+
+def cmd_consult(args, paths: Paths) -> int:
+    """Claude takildiginda diger modellerden fikir alir (danisma kurulu)."""
+    context = ""
+    if args.context_file:
+        try:
+            context = Path(args.context_file).read_text(encoding="utf-8", errors="replace")
+        except OSError as e:
+            print(f"baglam dosyasi okunamadi: {e}", file=sys.stderr)
+            return 1
+    prov_list = [s.strip() for s in args.providers.split(",") if s.strip()] or None
+    exclude = tuple(s.strip() for s in args.exclude.split(",") if s.strip())
+    result = council_mod.consult(
+        args.question, context=context, exclude=exclude, providers=prov_list,
+        max_tokens=args.max_tokens, timeout=args.timeout,
+    )
+    # audit: danisma olayini maskeli kaydet (anahtar/soru gizli tutulur)
+    try:
+        AuditLog(paths.audit_log).append(
+            "council", "consult",
+            {"providers_used": result.providers_used,
+             "skipped_no_providers": result.skipped_no_providers})
+    except Exception:
+        pass
+    _print(result.to_dict())
+    return 0 if not result.skipped_no_providers else 0
 
 
 def cmd_report(args, paths: Paths) -> int:
@@ -500,6 +541,16 @@ def main(argv: list[str] | None = None) -> int:
                    help=f"kapsam esigi (varsayilan {quality_gate.DEFAULT_MIN_COVERAGE})")
     p.add_argument("--skip", default="", help="atlanacak kontroller (virgullu): tests,coverage,lint,security,integrity")
 
+    sub.add_parser("providers", help="env'de anahtari mevcut LLM saglayicilari (maskeli)")
+
+    p = sub.add_parser("consult", help="takilinca diger modellerden fikir al (danisma kurulu)")
+    p.add_argument("question", help="sorulacak zor problem / karar")
+    p.add_argument("--context-file", default="", help="baglam olarak eklenecek dosya")
+    p.add_argument("--providers", default="", help="yalnizca bu saglayicilar (virgullu)")
+    p.add_argument("--exclude", default="anthropic", help="haric saglayicilar (virgullu)")
+    p.add_argument("--max-tokens", type=int, default=1024)
+    p.add_argument("--timeout", type=int, default=60)
+
     p = sub.add_parser("report", help="tek yetenegin tam kaydi")
     p.add_argument("id")
 
@@ -564,6 +615,7 @@ def main(argv: list[str] | None = None) -> int:
         "promote": cmd_promote, "approve": cmd_approve, "revoke": cmd_revoke,
         "list": cmd_list, "search": cmd_search, "stale": cmd_stale,
         "verify": cmd_verify, "gate": cmd_gate, "report": cmd_report,
+        "providers": cmd_providers, "consult": cmd_consult,
         "sandbox-run": cmd_sandbox_run, "learn": cmd_learn,
         "autoacquire-check": cmd_autoacquire_check,
         "autoacquire-promote": cmd_autoacquire_promote,

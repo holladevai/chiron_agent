@@ -211,6 +211,8 @@ python -m core <komut> [--root DIZIN]
 | `stale` | Yeniden doğrulama bekleyenler |
 | `verify` | Audit zinciri + politika bütünlüğü |
 | `gate` | **Deterministik Definition-of-Done** — test + kapsam + lint + güvenlik + bütünlük → `done: true/false` (loop durma koşulu, bkz. [docs/LOOPS.md](docs/LOOPS.md)) |
+| `providers` | Env'de anahtarı mevcut LLM sağlayıcıları (maskeli) → `solo`/`verify`/`council` modu |
+| `consult` | **AI kurulu** — Claude takılınca problemi *diğer* sağlayıcılara dağıtıp fikir alır (bkz. [docs/MULTI_MODEL.md](docs/MULTI_MODEL.md)) |
 | `learn recall/add/...` | Ders defteri (öğrenme) |
 
 ### Yan etkili, politika kapılı (agent kullanabilir)
@@ -307,6 +309,24 @@ rehber: **[docs/LOOPS.md](docs/LOOPS.md)**.
 
 > Dogfood: bu iki skill `.claude/skills/` altına elle konmadı — platformun kendi
 > hattından (`stage → tarama → sandbox eval → promote`) geçirilerek kuruldu.
+
+### Çoklu-model danışma kurulu (ana beyin Claude kalır)
+
+Ana beyin Claude'dur. Bir işte **takıldığında** Chiron, problemi env'de **anahtarı
+mevcut** olan diğer AI sağlayıcılara (OpenAI, Gemini, Mistral, DeepSeek, Groq, xAI,
+OpenRouter, yerel Ollama) dağıtıp fikirlerini toplar; Claude sentezler — Sakana AI'nin
+*"tek model değil, model takımı"* ve *"role göre farklı model"* fikrinden esinle.
+**Zarif bozulma:** 0–1 anahtarla solo (bugünkü davranış), 2 ile çapraz-doğrulama,
+3+ ile kurul. Anahtarlar yalnızca env'den okunur ve audit'e **maskeli** yazılır.
+
+```bash
+python -m core providers                     # mevcut sağlayıcılar (maskeli)
+python -m core consult "zor soru" --context-file bug.py
+```
+
+`ai-council` skill'i Claude'a **ne zaman** danışacağını söyler (tekrarlayan hata,
+zor tasarım kararı, "en iyi yaklaşım"); **yalnızca gerektiğinde** çağrılır, her
+turda değil. Tam rehber: **[docs/MULTI_MODEL.md](docs/MULTI_MODEL.md)**.
 
 > Düşmanca test notu: anayasal korumalı modüller (`policy.py`, `guard_hook.py`, `audit.py`)
 > **test edilir, asla değiştirilmez** — testler mevcut garantileri kilitler ve henüz

@@ -221,6 +221,8 @@ python -m core <command> [--root DIR]
 | `stale` | Capabilities awaiting re-verification |
 | `verify` | Audit chain + policy integrity check |
 | `gate` | **Deterministic Definition-of-Done** — tests + coverage + lint + security + integrity → `done: true/false` (the loop stop condition, see [docs/LOOPS.md](docs/LOOPS.md)) |
+| `providers` | List LLM providers whose API key is present in the env (masked) → `solo`/`verify`/`council` mode |
+| `consult` | **AI council** — when Claude is stuck, fan the problem out to the *other* providers for ideas/second opinions (see [docs/MULTI_MODEL.md](docs/MULTI_MODEL.md)) |
 | `learn recall/add/...` | Lesson ledger (learning) |
 
 ### Side effects, policy-gated (agent may use)
@@ -319,6 +321,25 @@ guide: **[docs/LOOPS.md](docs/LOOPS.md)**.
 > Dogfooding: those two skills were **not** hand-placed into `.claude/skills/` —
 > they were installed through the platform's own pipeline
 > (`stage → scan → sandbox eval → promote`), proving the safe-acquisition flow on itself.
+
+### Multi-model council (Claude stays the brain)
+
+The main brain is Claude. When it gets **stuck** on a hard problem, Chiron can fan
+the problem out to **whatever other AI providers have an API key in the env**
+(OpenAI, Gemini, Mistral, DeepSeek, Groq, xAI, OpenRouter, local Ollama) and gather
+their ideas for Claude to synthesize — inspired by Sakana AI's *"LLM dream team, not
+a single model"* and *"different model per role"*. **Graceful degradation:** with
+0–1 keys it runs solo (today's behavior); with 2 it can cross-verify; with 3+ it
+convenes a council. Keys are read only from env and **masked** in the audit log.
+
+```bash
+python -m core providers                     # which providers are available (masked)
+python -m core consult "hard question" --context-file bug.py
+```
+
+The `ai-council` skill tells Claude *when* to consult (repeated failure, hard design
+call, "best approach"); it is invoked **only when needed**, never every turn. Full
+guide: **[docs/MULTI_MODEL.md](docs/MULTI_MODEL.md)**.
 
 > Note on adversarial tests: constitutionally protected modules (`policy.py`,
 > `guard_hook.py`, `audit.py`) are **tested, never modified** — the tests lock in their
