@@ -15,9 +15,11 @@ import sys
 from pathlib import Path
 
 from . import council as council_mod
+from . import kpi as kpi_mod
 from . import providers as providers_mod
 from . import quality_gate
 from . import sandbox as sbx
+from . import sbom as sbom_mod
 from .audit import AuditLog
 from .learning import LessonStore
 from .lifecycle import Pipeline
@@ -246,6 +248,18 @@ def cmd_consult(args, paths: Paths) -> int:
         pass
     _print(result.to_dict())
     return 0 if not result.skipped_no_providers else 0
+
+
+def cmd_kpi(args, paths: Paths) -> int:
+    """Operasyonel KPI raporu (audit + registry + ogrenmeden turetilir)."""
+    _print(kpi_mod.compute_kpis(paths))
+    return 0
+
+
+def cmd_sbom(args, paths: Paths) -> int:
+    """Yazilim malzeme listesi: bagimliliklar + kurulu yetenekler (hash/lisans)."""
+    _print(sbom_mod.build_sbom(paths))
+    return 0
 
 
 def cmd_report(args, paths: Paths) -> int:
@@ -541,6 +555,9 @@ def main(argv: list[str] | None = None) -> int:
                    help=f"kapsam esigi (varsayilan {quality_gate.DEFAULT_MIN_COVERAGE})")
     p.add_argument("--skip", default="", help="atlanacak kontroller (virgullu): tests,coverage,lint,security,integrity")
 
+    sub.add_parser("kpi", help="operasyonel KPI raporu (audit+registry+ogrenme)")
+    sub.add_parser("sbom", help="yazilim malzeme listesi (bagimliliklar + kurulu yetenekler)")
+
     sub.add_parser("providers", help="env'de anahtari mevcut LLM saglayicilari (maskeli)")
 
     p = sub.add_parser("consult", help="takilinca diger modellerden fikir al (danisma kurulu)")
@@ -616,6 +633,7 @@ def main(argv: list[str] | None = None) -> int:
         "list": cmd_list, "search": cmd_search, "stale": cmd_stale,
         "verify": cmd_verify, "gate": cmd_gate, "report": cmd_report,
         "providers": cmd_providers, "consult": cmd_consult,
+        "kpi": cmd_kpi, "sbom": cmd_sbom,
         "sandbox-run": cmd_sandbox_run, "learn": cmd_learn,
         "autoacquire-check": cmd_autoacquire_check,
         "autoacquire-promote": cmd_autoacquire_promote,

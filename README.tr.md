@@ -211,6 +211,8 @@ python -m core <komut> [--root DIZIN]
 | `stale` | Yeniden doğrulama bekleyenler |
 | `verify` | Audit zinciri + politika bütünlüğü |
 | `gate` | **Deterministik Definition-of-Done** — test + kapsam + lint + güvenlik + bütünlük → `done: true/false` (loop durma koşulu, bkz. [docs/LOOPS.md](docs/LOOPS.md)) |
+| `kpi` | Audit + registry + derslerden türetilen operasyonel KPI'lar (yetenek envanteri, edinme hunisi, red/iptal oranları, guard-blok etkinliği, öğrenme yeniden-kullanımı) |
+| `sbom` | Yazılım Malzeme Listesi — bağımlılıklar + kurulu yetenekler (içerik hash'i, tarama skoru, köken) |
 | `providers` | Env'de anahtarı mevcut LLM sağlayıcıları (maskeli) → `solo`/`verify`/`council` modu |
 | `consult` | **AI kurulu** — Claude takılınca problemi *diğer* sağlayıcılara dağıtıp fikir alır (bkz. [docs/MULTI_MODEL.md](docs/MULTI_MODEL.md)) |
 | `learn recall/add/...` | Ders defteri (öğrenme) |
