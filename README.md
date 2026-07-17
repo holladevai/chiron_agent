@@ -326,7 +326,9 @@ guide: **[docs/LOOPS.md](docs/LOOPS.md)**.
 
 The main brain is Claude. When it gets **stuck** on a hard problem, Chiron can fan
 the problem out to **whatever other AI providers have an API key in the env**
-(OpenAI, Gemini, Mistral, DeepSeek, Groq, xAI, OpenRouter, local Ollama) and gather
+(**NVIDIA NIM** — best open *coding* models like Qwen3-Coder-480B/DeepSeek/Kimi K2 —
+plus Moonshot/Kimi, Fireworks, Together, OpenAI, Gemini, Mistral, DeepSeek, Groq,
+xAI, OpenRouter, local Ollama) and gather
 their ideas for Claude to synthesize — inspired by Sakana AI's *"LLM dream team, not
 a single model"* and *"different model per role"*. **Graceful degradation:** with
 0–1 keys it runs solo (today's behavior); with 2 it can cross-verify; with 3+ it

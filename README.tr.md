@@ -313,8 +313,10 @@ rehber: **[docs/LOOPS.md](docs/LOOPS.md)**.
 ### Çoklu-model danışma kurulu (ana beyin Claude kalır)
 
 Ana beyin Claude'dur. Bir işte **takıldığında** Chiron, problemi env'de **anahtarı
-mevcut** olan diğer AI sağlayıcılara (OpenAI, Gemini, Mistral, DeepSeek, Groq, xAI,
-OpenRouter, yerel Ollama) dağıtıp fikirlerini toplar; Claude sentezler — Sakana AI'nin
+mevcut** olan diğer AI sağlayıcılara (**NVIDIA NIM** — en iyi açık *kodlama* modelleri
+Qwen3-Coder-480B/DeepSeek/Kimi K2 — ayrıca Moonshot/Kimi, Fireworks, Together, OpenAI,
+Gemini, Mistral, DeepSeek, Groq, xAI, OpenRouter, yerel Ollama) dağıtıp fikirlerini
+toplar; Claude sentezler — Sakana AI'nin
 *"tek model değil, model takımı"* ve *"role göre farklı model"* fikrinden esinle.
 **Zarif bozulma:** 0–1 anahtarla solo (bugünkü davranış), 2 ile çapraz-doğrulama,
 3+ ile kurul. Anahtarlar yalnızca env'den okunur ve audit'e **maskeli** yazılır.

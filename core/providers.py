@@ -41,11 +41,27 @@ PROVIDERS: tuple[ProviderSpec, ...] = (
     ProviderSpec("anthropic", "anthropic", "ANTHROPIC_API_KEY", "claude-sonnet-5"),
     ProviderSpec("openai", "openai", "OPENAI_API_KEY", "gpt-4o", "https://api.openai.com/v1"),
     ProviderSpec("google", "gemini", "GEMINI_API_KEY", "gemini-2.5-pro"),
+    # NVIDIA NIM — OpenAI-uyumlu; en iyi ACIK KODLAMA modellerini barindirir
+    # (Qwen3-Coder, DeepSeek, Kimi K2...). Anahtar: nvapi-... Varsayilan: en guclu
+    # kodlama modeli. Model listesi hizli degisir -> CHIRON_NVIDIA_MODEL ile override.
+    ProviderSpec("nvidia", "openai", "NVIDIA_API_KEY",
+                 "qwen/qwen3-coder-480b-a35b-instruct", "https://integrate.api.nvidia.com/v1"),
+    # Moonshot / Kimi — ajanik kodlama icin guclu (Kimi K2 ailesi)
+    ProviderSpec("moonshot", "openai", "MOONSHOT_API_KEY",
+                 "kimi-k2-0711-preview", "https://api.moonshot.ai/v1"),
     ProviderSpec("mistral", "openai", "MISTRAL_API_KEY", "mistral-large-latest", "https://api.mistral.ai/v1"),
+    # DeepSeek — deepseek-chat (V3) genel+kodlama; deepseek-reasoner muhakeme icin
     ProviderSpec("deepseek", "openai", "DEEPSEEK_API_KEY", "deepseek-chat", "https://api.deepseek.com/v1"),
     ProviderSpec("groq", "openai", "GROQ_API_KEY", "llama-3.3-70b-versatile", "https://api.groq.com/openai/v1"),
     ProviderSpec("xai", "openai", "XAI_API_KEY", "grok-2-latest", "https://api.x.ai/v1"),
+    # OpenRouter — tek anahtarla 400+ model (kodlama modeli de secilebilir)
     ProviderSpec("openrouter", "openai", "OPENROUTER_API_KEY", "openai/gpt-4o", "https://openrouter.ai/api/v1"),
+    # Fireworks — acik kodlama modelleri (Qwen/DeepSeek/Kimi) hizli servis
+    ProviderSpec("fireworks", "openai", "FIREWORKS_API_KEY",
+                 "accounts/fireworks/models/qwen3-coder-480b-a35b-instruct",
+                 "https://api.fireworks.ai/inference/v1"),
+    ProviderSpec("together", "openai", "TOGETHER_API_KEY",
+                 "Qwen/Qwen3-Coder-480B-A35B-Instruct", "https://api.together.xyz/v1"),
 )
 
 # Ollama (yerel) — anahtar gerektirmez; CHIRON_OLLAMA_BASE ayarliysa etkinlesir.

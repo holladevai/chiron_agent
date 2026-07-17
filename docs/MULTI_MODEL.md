@@ -44,19 +44,40 @@ atlanır, diğerleri etkilenmez (paralel + fallback).
 
 İlgili ortam değişkenini ayarlaman yeterli — kod değişmez:
 
-| Sağlayıcı | Env anahtarı | Model override |
-|---|---|---|
-| OpenAI | `OPENAI_API_KEY` | `CHIRON_OPENAI_MODEL` |
-| Google Gemini | `GEMINI_API_KEY` | `CHIRON_GOOGLE_MODEL` |
-| Mistral | `MISTRAL_API_KEY` | `CHIRON_MISTRAL_MODEL` |
-| DeepSeek | `DEEPSEEK_API_KEY` | `CHIRON_DEEPSEEK_MODEL` |
-| Groq | `GROQ_API_KEY` | `CHIRON_GROQ_MODEL` |
-| xAI (Grok) | `XAI_API_KEY` | `CHIRON_XAI_MODEL` |
-| OpenRouter | `OPENROUTER_API_KEY` | `CHIRON_OPENROUTER_MODEL` |
-| Ollama (yerel) | `CHIRON_OLLAMA_BASE` | `CHIRON_OLLAMA_MODEL` |
-| Anthropic | `ANTHROPIC_API_KEY` | `CHIRON_ANTHROPIC_MODEL` |
+| Sağlayıcı | Env anahtarı | Model override | Not |
+|---|---|---|---|
+| **NVIDIA NIM** | `NVIDIA_API_KEY` (`nvapi-…`) | `CHIRON_NVIDIA_MODEL` | 🥇 En iyi **açık kodlama** modelleri (Qwen3-Coder-480B, DeepSeek, Kimi K2); OpenAI-uyumlu, ücretsiz kredi |
+| **Moonshot / Kimi** | `MOONSHOT_API_KEY` | `CHIRON_MOONSHOT_MODEL` | Kimi K2 — ajanik kodlamada güçlü |
+| Fireworks | `FIREWORKS_API_KEY` | `CHIRON_FIREWORKS_MODEL` | Açık kodlama modelleri hızlı servis |
+| Together | `TOGETHER_API_KEY` | `CHIRON_TOGETHER_MODEL` | Qwen3-Coder vb. |
+| DeepSeek | `DEEPSEEK_API_KEY` | `CHIRON_DEEPSEEK_MODEL` | `deepseek-chat` (V3) / `deepseek-reasoner` |
+| OpenAI | `OPENAI_API_KEY` | `CHIRON_OPENAI_MODEL` | |
+| Google Gemini | `GEMINI_API_KEY` | `CHIRON_GOOGLE_MODEL` | |
+| Mistral | `MISTRAL_API_KEY` | `CHIRON_MISTRAL_MODEL` | Codestral kodlama için |
+| Groq | `GROQ_API_KEY` | `CHIRON_GROQ_MODEL` | çok hızlı çıkarım |
+| xAI (Grok) | `XAI_API_KEY` | `CHIRON_XAI_MODEL` | |
+| OpenRouter | `OPENROUTER_API_KEY` | `CHIRON_OPENROUTER_MODEL` | tek anahtar, 400+ model |
+| Ollama (yerel) | `CHIRON_OLLAMA_BASE` | `CHIRON_OLLAMA_MODEL` | anahtarsız, yerel |
+| Anthropic | `ANTHROPIC_API_KEY` | `CHIRON_ANTHROPIC_MODEL` | (soruyu soran zaten Claude → varsayılan hariç) |
 
 Yeni sağlayıcı eklemek = `core/providers.py` içindeki `PROVIDERS` tablosuna bir satır.
+
+### Önerilen kodlama modelleri (2026)
+
+Model kimlikleri hızlı değişir; aşağıdakiler **başlangıç örneği** — sağlayıcının güncel
+model listesinden doğrulayıp `CHIRON_<PROV>_MODEL` ile ayarla:
+
+| Amaç | Model (örnek) | Nerede |
+|---|---|---|
+| En iyi açık kodlama (büyük) | `qwen/qwen3-coder-480b-a35b-instruct` | NVIDIA NIM / Fireworks / Together |
+| Ajanik kodlama | Kimi K2 (`kimi-k2-…`) | Moonshot / NVIDIA NIM |
+| Güçlü MoE kod + muhakeme | DeepSeek V3 (`deepseek-chat`), R-serisi (`deepseek-reasoner`) | DeepSeek / NVIDIA NIM |
+| Hafif/yerel kodlama | Qwen3-Coder küçük varyant, Devstral | Ollama (yerel) |
+| Hızlı/ucuz | Llama-3.x, Mixtral | Groq / Together |
+
+> Kaynaklar: [NVIDIA NIM (OpenAI-uyumlu)](https://ai-sdk.dev/providers/openai-compatible-providers/nim) ·
+> [NVIDIA NIM model listesi](https://docs.api.nvidia.com/nim/reference/llm-apis) ·
+> [2026 açık kodlama modelleri](https://kilo.ai/open-source-models)
 
 ## Fikirler nasıl kullanılır (sentez)
 

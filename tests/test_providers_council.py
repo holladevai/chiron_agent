@@ -30,6 +30,17 @@ def test_discovery_empty_env():
     assert providers.available_providers({}) == []
 
 
+def test_nvidia_and_kimi_discovery():
+    env = {"NVIDIA_API_KEY": "nvapi-xxxx1234yyyy", "MOONSHOT_API_KEY": "sk-kimi-5678abcd"}
+    provs = {p.name: p for p in providers.available_providers(env)}
+    assert "nvidia" in provs and "moonshot" in provs
+    # NVIDIA NIM OpenAI-uyumlu ve kodlama-guclu varsayilan
+    assert provs["nvidia"].kind == "openai"
+    assert "integrate.api.nvidia.com" in provs["nvidia"].base
+    assert "coder" in provs["nvidia"].model.lower()
+    assert "kimi" in provs["moonshot"].model.lower()
+
+
 def test_model_override(monkeypatch):
     monkeypatch.setenv("CHIRON_OPENAI_MODEL", "gpt-özel")
     provs = providers.available_providers({"OPENAI_API_KEY": "sk-aaaa1111bbbb"})
