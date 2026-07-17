@@ -210,6 +210,7 @@ python -m core <komut> [--root DIZIN]
 | `list` / `search` / `report <id>` | Registry kataloğu, arama, tam kayıt |
 | `stale` | Yeniden doğrulama bekleyenler |
 | `verify` | Audit zinciri + politika bütünlüğü |
+| `gate` | **Deterministik Definition-of-Done** — test + kapsam + lint + güvenlik + bütünlük → `done: true/false` (loop durma koşulu, bkz. [docs/LOOPS.md](docs/LOOPS.md)) |
 | `learn recall/add/...` | Ders defteri (öğrenme) |
 
 ### Yan etkili, politika kapılı (agent kullanabilir)
@@ -294,6 +295,18 @@ Python 3.10–3.12 matrisinde çalışır:
 | **Platform bütünlüğü** (`python -m core verify`) | hash-zincirli audit + mühürlü politika sağlam |
 
 Hepsini yerelde çalıştır: `make all` (ham komutlar için [CONTRIBUTING.md](CONTRIBUTING.md)).
+
+### Loop engineering (NASA-seviyesi yaşamdöngüsü)
+
+Chiron, agent'ı katı bir yazılım ekibine dönüştürür: **deterministik
+Definition-of-Done kapısı** (`python -m core gate`) bir `/goal` loop'unun
+makine-doğrulamalı durma koşuludur; iki kurulu skill (`software-lifecycle`,
+`loop-engineering`) plan → geliştir → test → bağımsız-review → doğrula sürecini
+kodlar — review aşaması için taze-bağlam `sw-reviewer` subagent'ıyla. Tam
+rehber: **[docs/LOOPS.md](docs/LOOPS.md)**.
+
+> Dogfood: bu iki skill `.claude/skills/` altına elle konmadı — platformun kendi
+> hattından (`stage → tarama → sandbox eval → promote`) geçirilerek kuruldu.
 
 > Düşmanca test notu: anayasal korumalı modüller (`policy.py`, `guard_hook.py`, `audit.py`)
 > **test edilir, asla değiştirilmez** — testler mevcut garantileri kilitler ve henüz

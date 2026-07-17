@@ -220,6 +220,7 @@ python -m core <command> [--root DIR]
 | `list` / `search` / `report <id>` | Registry catalog, search, full record |
 | `stale` | Capabilities awaiting re-verification |
 | `verify` | Audit chain + policy integrity check |
+| `gate` | **Deterministic Definition-of-Done** — tests + coverage + lint + security + integrity → `done: true/false` (the loop stop condition, see [docs/LOOPS.md](docs/LOOPS.md)) |
 | `learn recall/add/...` | Lesson ledger (learning) |
 
 ### Side effects, policy-gated (agent may use)
@@ -305,6 +306,19 @@ Linux/macOS/Windows × Python 3.10–3.12:
 | **Platform integrity** (`python -m core verify`) | hash-chained audit + sealed policy intact |
 
 Run it all locally: `make all` (or see [CONTRIBUTING.md](CONTRIBUTING.md) for the raw commands).
+
+### Loop engineering (NASA-grade lifecycle)
+
+Chiron turns the agent into a rigorous software team: a **deterministic
+Definition-of-Done gate** (`python -m core gate`) is the machine-checked stop
+condition for a `/goal` loop, and two installed skills (`software-lifecycle`,
+`loop-engineering`) encode the plan → develop → test → independent-review → verify
+process — with a fresh-context `sw-reviewer` subagent for the review stage. Full
+guide: **[docs/LOOPS.md](docs/LOOPS.md)**.
+
+> Dogfooding: those two skills were **not** hand-placed into `.claude/skills/` —
+> they were installed through the platform's own pipeline
+> (`stage → scan → sandbox eval → promote`), proving the safe-acquisition flow on itself.
 
 > Note on adversarial tests: constitutionally protected modules (`policy.py`,
 > `guard_hook.py`, `audit.py`) are **tested, never modified** — the tests lock in their

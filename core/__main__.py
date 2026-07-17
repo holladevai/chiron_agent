@@ -14,6 +14,7 @@ import json
 import sys
 from pathlib import Path
 
+from . import quality_gate
 from . import sandbox as sbx
 from .audit import AuditLog
 from .learning import LessonStore
@@ -195,6 +196,15 @@ def cmd_verify(args, paths: Paths) -> int:
     _print({"audit": {"ok": audit_ok, "message": audit_msg},
             "policy": {"ok": policy_ok, "message": policy_msg}})
     return 0 if (audit_ok and policy_ok) else 1
+
+
+def cmd_gate(args, paths: Paths) -> int:
+    """Deterministik Definition-of-Done kapisi. done ise exit 0, degilse 1."""
+    min_cov = args.min_coverage if args.min_coverage is not None else quality_gate.DEFAULT_MIN_COVERAGE
+    skip = tuple(s.strip() for s in args.skip.split(",") if s.strip())
+    result = quality_gate.run_gate(paths.root, min_coverage=min_cov, skip=skip)
+    _print(result.to_dict())
+    return 0 if result.done else 1
 
 
 def cmd_report(args, paths: Paths) -> int:
@@ -485,6 +495,11 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("verify", help="audit zinciri + politika butunlugu dogrula")
 
+    p = sub.add_parser("gate", help="deterministik Definition-of-Done kapisi (loop durma kosulu)")
+    p.add_argument("--min-coverage", type=int, default=None,
+                   help=f"kapsam esigi (varsayilan {quality_gate.DEFAULT_MIN_COVERAGE})")
+    p.add_argument("--skip", default="", help="atlanacak kontroller (virgullu): tests,coverage,lint,security,integrity")
+
     p = sub.add_parser("report", help="tek yetenegin tam kaydi")
     p.add_argument("id")
 
@@ -548,7 +563,7 @@ def main(argv: list[str] | None = None) -> int:
         "scan": cmd_scan, "stage": cmd_stage, "eval": cmd_eval,
         "promote": cmd_promote, "approve": cmd_approve, "revoke": cmd_revoke,
         "list": cmd_list, "search": cmd_search, "stale": cmd_stale,
-        "verify": cmd_verify, "report": cmd_report,
+        "verify": cmd_verify, "gate": cmd_gate, "report": cmd_report,
         "sandbox-run": cmd_sandbox_run, "learn": cmd_learn,
         "autoacquire-check": cmd_autoacquire_check,
         "autoacquire-promote": cmd_autoacquire_promote,
