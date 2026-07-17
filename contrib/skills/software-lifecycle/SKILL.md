@@ -23,6 +23,10 @@ degisikligin OLCULEBILIR bicimde "bitti" oldugunu kanitlamak.
 ## Asamalar
 
 ### 1) Plan (koda dokunmadan once)
+- **Once benzerlerini arastir:** yeni proje/ozellik/tasarimda ilk adim
+  `prior-art-research` — pazar/satilan tema/rakip/ornekleri incele; sundulari
+  ozellik + tema/tasarim, COZEMEDIKLERI bosluk ve kullanici geri bildirimlerini
+  cikar; plana yansit (benimse / kacin / bosluğu doldurarak farklilas).
 - Gereksinimi tek cumlede yaz: "Basari su OLCULEBILIR kosul saglaninca gerceklesir."
 - Kabul kriterlerini deterministik ifade et: hangi testler gececek, hangi
   davranis dogrulanacak, kapsam esigi ne.

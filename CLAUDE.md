@@ -45,6 +45,11 @@ Platformun evi bu repo'dur; tum projeler ayni yetenek kutuphanesini/politikalari
    - `research_and_stage_capability` -> `capability-manager` subagent ile eksik
      yetenegi `secure-capability-acquisition` akisiyla edin.
 3. **Sonucu kanitla.** "Bitti" demeden once evaluator/eval ile kanit uret.
+4. **Yeni proje/ozellik/tasarim planlarken once benzerlerini arastir**
+   ([[prior-art-research]]): pazar/satilan tema/rakip/ornekleri incele; sundulari
+   ozellik + tema/tasarim, cozemedikleri BOSLUK ve kullanici geri bildirimlerini
+   cikar; plana yansit (benimse / kacin / bosluğu doldurarak farklilas). Bosbir
+   sayfadan plan yapma.
 
 ## Token-verimli calisma (ponytail) ve ogrenme
 
