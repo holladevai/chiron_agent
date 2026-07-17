@@ -6,8 +6,8 @@
 
 [![Lisans: PolyForm Noncommercial](https://img.shields.io/badge/Lisans-PolyForm_Noncommercial_1.0.0-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
-[![Testler](https://img.shields.io/badge/testler-127_ge%C3%A7iyor-brightgreen.svg)](tests/)
-[![Kapsam](https://img.shields.io/badge/kapsam-%2588-brightgreen.svg)](#test--kalite)
+[![Testler](https://img.shields.io/badge/testler-181_ge%C3%A7iyor-brightgreen.svg)](tests/)
+[![Kapsam](https://img.shields.io/badge/kapsam-%2591-brightgreen.svg)](#test--kalite)
 [![Lint](https://img.shields.io/badge/lint-ruff-261230.svg?logo=ruff&logoColor=white)](https://docs.astral.sh/ruff/)
 [![Platform](https://img.shields.io/badge/%C3%BCzerinde_%C3%A7al%C4%B1%C5%9F%C4%B1r-Claude_Code-d97757.svg)](https://claude.com/claude-code)
 
@@ -47,6 +47,11 @@
 | 🔗 | **Hash-zincirli audit** | Her karar kurcalanamaz audit log'una eklenir; `verify` zincir bütünlüğünü denetler |
 | 👥 | **Görev ayrılığı** | İşi yapan/bulan agent asla nihai onaylayıcı olamaz — bağımsız subagent'lar inceler ve doğrular |
 | 🪶 | **Minimalist mühendislik** | "En iyi kod, hiç yazmadığın koddur." Karar merdiveni gereksiz kod/bağımlılık/yeteneği önler — güvenlik denetimleri asla atlanmaz |
+| 🎯 | **Loop engineering + deterministik kapı** | `python -m core gate` makine-doğrulamalı Definition-of-Done (test + kapsam + lint + güvenlik + bütünlük); `/goal` loop'unun durma koşulu (bkz. [docs/LOOPS.md](docs/LOOPS.md)) |
+| 🧭 | **Araştırma-önce planlama** | Kurmadan önce benzerlerini inceler (`prior-art-research`) ve en iyi kütüphaneyi GitHub'da arar (`library-discovery`/`github-search`, ör. 3D için three.js) |
+| 🤝 | **Çoklu-model kurul** | Ana beyin Claude; takılınca problemi anahtarı olan diğer sağlayıcılara (NVIDIA NIM, Kimi, OpenAI, Gemini…) dağıtıp fikir alır (bkz. [docs/MULTI_MODEL.md](docs/MULTI_MODEL.md)) |
+| 🖥️ | **Görsel QA** | UI/3D işinde `visual-qa` gerçek tarayıcıda render + ekran görüntüsü + gözle inceleme — sözdizim yeşili görsel kaliteyi kanıtlamaz |
+| 📊 | **Operatör görünürlüğü** | `kpi` (audit/registry/derslerden metrik), `sbom` (malzeme listesi), `backlog` (insan-işi tek konsolda) |
 
 ## Nasıl Çalışır
 
@@ -294,8 +299,8 @@ Python 3.10–3.12 matrisinde çalışır:
 
 | Katman | Ne denetler |
 |---|---|
-| **127 test** (`pytest`) | unit + integration + **düşmanca (adversarial)** |
-| **Kapsam kapısı** (`coverage.py`) | `fail_under = %85` (şu an ~%88) |
+| **181 test** (`pytest`) | unit + integration + **düşmanca (adversarial)** |
+| **Kapsam kapısı** (`coverage.py`) | `fail_under = %85` (şu an ~%91) |
 | **Düşmanca güvenlik testleri** | guard-hook atlatma, path-traversal, insan-only zorlama, scanner obfuscation/base64/sıfır-genişlik bypass, sandbox ağ-kesme & timeout & secret-sızıntısı, audit kurcalama/sıralama/silme |
 | **Bilinen-boşluk takibi** | gerçek sınırlar (regex-bypass, audit truncation/re-forge) `@pytest.mark.xfail(strict=True)` ile sabitlenir — motor gelişirse test döner ve güncelleme zorlar |
 | **Lint** (`ruff`) · **Güvenlik lint** (`bandit`) · **Bağımlılık CVE** (`pip-audit`) · **Secret** (`gitleaks`) | sıfır bulgu |

@@ -6,8 +6,8 @@
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm_Noncommercial_1.0.0-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-127_passing-brightgreen.svg)](tests/)
-[![Coverage](https://img.shields.io/badge/coverage-88%25-brightgreen.svg)](#testing--quality)
+[![Tests](https://img.shields.io/badge/tests-181_passing-brightgreen.svg)](tests/)
+[![Coverage](https://img.shields.io/badge/coverage-91%25-brightgreen.svg)](#testing--quality)
 [![Lint](https://img.shields.io/badge/lint-ruff-261230.svg?logo=ruff&logoColor=white)](https://docs.astral.sh/ruff/)
 [![Security](https://img.shields.io/badge/security-bandit%20%2B%20pip--audit-yellow.svg)](SECURITY.md)
 [![Platform](https://img.shields.io/badge/runs_on-Claude_Code-d97757.svg)](https://claude.com/claude-code)
@@ -49,6 +49,11 @@ Three layers of behavior:
 | 🔗 | **Hash-chained audit** | Every decision appended to a tamper-evident audit log; `verify` checks chain integrity |
 | 👥 | **Separation of duties** | The agent that finds/does the work can never be the final approver — independent subagents review and verify |
 | 🪶 | **Minimalist engineering** | "The best code is the code you never write." A decision ladder prevents unnecessary code, deps and capabilities — security checks are never skipped |
+| 🎯 | **Loop engineering + deterministic gate** | `python -m core gate` is a machine-checked Definition-of-Done (tests + coverage + lint + security + integrity) used as the stop condition for `/goal` loops (see [docs/LOOPS.md](docs/LOOPS.md)) |
+| 🧭 | **Research-first planning** | Before building, the system studies prior art (`prior-art-research`) and queries GitHub for the best-fit library (`library-discovery` / `github-search`, e.g. three.js for 3D) |
+| 🤝 | **Multi-model council** | Claude stays the brain; when stuck it fans the problem out to whatever other providers have a key (NVIDIA NIM, Kimi, OpenAI, Gemini…) for ideas (see [docs/MULTI_MODEL.md](docs/MULTI_MODEL.md)) |
+| 🖥️ | **Visual QA** | For UI/3D work, `visual-qa` renders in a real browser, screenshots across viewports, and inspects for defects — syntax passing doesn't prove visual quality |
+| 📊 | **Operator visibility** | `kpi` (metrics from audit/registry/lessons), `sbom` (bill of materials), `backlog` (human-only tasks surfaced in one console) |
 
 ## How It Works
 
@@ -305,8 +310,8 @@ Linux/macOS/Windows × Python 3.10–3.12:
 
 | Layer | What it checks |
 |---|---|
-| **127 tests** (`pytest`) | unit + integration + **adversarial** |
-| **Coverage gate** (`coverage.py`) | `fail_under = 85%` (currently ~88%) |
+| **181 tests** (`pytest`) | unit + integration + **adversarial** |
+| **Coverage gate** (`coverage.py`) | `fail_under = 85%` (currently ~91%) |
 | **Adversarial security tests** | guard-hook bypass, path-traversal, HUMAN-only enforcement, scanner obfuscation/base64/zero-width bypass, sandbox network-kill & timeout & secret-leak, audit tamper/reorder/deletion |
 | **Known-gap tracking** | genuine limitations (regex-bypass, audit truncation/re-forge) are pinned as `@pytest.mark.xfail(strict=True)` — if the engine improves, the test flips and forces an update |
 | **Lint** (`ruff`) · **Security lint** (`bandit`) · **Dep CVEs** (`pip-audit`) · **Secrets** (`gitleaks` pre-commit) | zero findings |
