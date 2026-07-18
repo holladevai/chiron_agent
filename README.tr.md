@@ -134,7 +134,7 @@ flowchart LR
 ## Kurulum
 
 ```bash
-git clone https://github.com/holladevai/chiron.git
+git clone https://github.com/alidevai/chiron_agent.git
 cd chiron
 pip install -r requirements.txt
 python -m core init      # dizinler, politika mührü, seed skill kayıtları
@@ -373,4 +373,4 @@ Temel kurallar:
 - ✅ Kişisel kullanım, araştırma, eğitim, deneme, kâr amacı gütmeyen kullanım
 - ❌ Her türlü ticari kullanım (ürün/hizmete gömme, satma, ticari operasyonda çalıştırma)
 
-© 2026 holladevai. Lisansla verilen izinler dışında tüm hakları saklıdır.
+© 2026 alidevai. Lisansla verilen izinler dışında tüm hakları saklıdır.

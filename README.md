@@ -136,7 +136,7 @@ flowchart LR
 ## Installation
 
 ```bash
-git clone https://github.com/holladevai/chiron.git
+git clone https://github.com/alidevai/chiron_agent.git
 cd chiron
 pip install -r requirements.txt
 python -m core init      # directories, policy seal, seed skill records
@@ -386,4 +386,4 @@ Ground rules:
 - ✅ Personal use, research, education, experimentation, nonprofit use
 - ❌ Any commercial use (embedding in products/services, selling, running in commercial operations)
 
-© 2026 holladevai. All rights reserved except as granted by the license.
+© 2026 alidevai. All rights reserved except as granted by the license.

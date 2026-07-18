@@ -18,7 +18,7 @@ each with its own path. **English** below; [Türkçe özet](#türkçe-özet) at 
 ## 1. Code contributions (core platform)
 
 ```bash
-git clone https://github.com/holladevai/chiron.git
+git clone https://github.com/alidevai/chiron_agent.git
 cd chiron
 pip install -e .[dev]      # test + QA toolchain (ruff, bandit, coverage, pip-audit)
 pre-commit install         # local commit gate (optional but recommended)
